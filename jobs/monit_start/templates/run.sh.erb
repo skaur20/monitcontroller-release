@@ -1,0 +1,7 @@
+#!/bin/bash
+
+<% p('jobs').each do |job| %>
+if [ -f /var/vcap/jobs/<%= job %>/bin/<%= job %>_ctl ]; then
+    /var/vcap/bosh/bin/monit start <%= job %>
+fi
+<% end %>
