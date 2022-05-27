@@ -1,7 +1,19 @@
 #!/bin/bash
 
 <% p('jobs').each do |job| %>
-if [ -f /var/vcap/jobs/<%= job %>/bin/<%= job %>_ctl ]; then
-    /var/vcap/bosh/bin/monit start <%= job %>
+monit_file="/var/vcap/jobs/<%= "#{job}/monit" %>"
+disabled_file=$(find /var/vcap/monit/job -iname '*<%= "#{job}" %>*.monitrc.disable')
+enabled_file=${disabled_file%.disable}
+
+if [ -f $monit_file ]; then
+    mv -f "$disabled_file" "$enabled_file"
+    /var/vcap/bosh/bin/monit reload
+    sleep 2
+    for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
+        /var/vcap/bosh/bin/monit start $p
+    done
+    for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
+        /var/vcap/bosh/bin/monit monitor $p
+    done
 fi
 <% end %>
