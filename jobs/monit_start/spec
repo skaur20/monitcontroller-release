@@ -10,3 +10,5 @@ properties:
   jobs:
     description: A list of jobs to start
     default: []
+  wait:
+    description: Sleep for x seconds to start all services again
