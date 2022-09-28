@@ -20,6 +20,22 @@ describe 'monit_stop errand job' do
       expect(rendered).to include("enabled_file=$(find /var/vcap/monit/job -name '*lol*.monitrc')")
       expect(rendered).to include('monit_file="/var/vcap/jobs/lol/monit"')
       expect(rendered).to include('disabled_file="$enabled_file.disable"')
+      expect(rendered).to_not include('exit $?')
     end
+
+    describe 'instances property' do
+      it 'will override job functioality' do
+        spec = Bosh::Template::Test::InstanceSpec.new(name: 'myinstance')
+        rendered = template.render({ 'jobs' => ['lol'], 'instances' => ['myinstance'] }, spec: spec)
+        expect(rendered).to include('exit $?')
+      end
+
+      it 'will not affect other undeclared instances' do
+        spec = Bosh::Template::Test::InstanceSpec.new(name: 'anotherinstance')
+        rendered = template.render({ 'jobs' => ['lol'], 'instances' => ['myinstance'] }, spec: spec)
+        expect(rendered).to_not include('exit $?')
+      end
+    end
+
   end
 end

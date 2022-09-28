@@ -1,5 +1,15 @@
 #!/bin/bash
 
+<%
+if_p("instances") do |instances|
+    if instances.include?(spec.name) %>
+/var/vcap/bosh/bin/monit unmonitor all
+/var/vcap/bosh/bin/monit stop all
+exit $?
+<%  end
+end
+%>
+
 <% p('jobs').each do |job| %>
 monit_file="/var/vcap/jobs/<%= "#{job}/monit" %>"
 enabled_file=$(find /var/vcap/monit/job -name '*<%= "#{job}" %>*.monitrc')

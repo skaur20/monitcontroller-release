@@ -7,6 +7,9 @@ templates:
 packages: []
 
 properties:
+  instances:
+    description: A list of instances to stop all jobs. It overrides any job stop the same errand would do independently.
+    default: []
   jobs:
     description: A list of jobs to stop
     default: []
