@@ -13,3 +13,5 @@ properties:
   jobs:
     description: A list of jobs to stop
     default: []
+  wait:
+    description: Sleep for x seconds to stop all services
