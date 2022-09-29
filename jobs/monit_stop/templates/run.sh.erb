@@ -6,7 +6,7 @@ if_p("instances") do |instances|
 disabled_folder=/var/vcap/monit/job.disabled
 mkdir -p $disabled_folder
 
-enabled_files=$(find /var/vcap/monit/job -type f -size +1c -name *.monitrc')
+enabled_files=$(find /var/vcap/monit/job -type f -size +1c -name '*.monitrc')
 for $monit_file in $enabled_files ; do
     for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
         /var/vcap/bosh/bin/monit unmonitor $p
