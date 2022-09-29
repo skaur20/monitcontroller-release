@@ -1,0 +1,58 @@
+#!/bin/bash
+
+exit_code=0
+<%
+if_p("instances") do |instances|
+    if instances.include?(spec.name) %>
+disabled_folder=/var/vcap/monit/job.disabled
+if [ ! -d "$disabled_folder" ]; then
+echo "disabled folder $disabled_folder not found"
+fi
+
+enabled_files=$(find /var/vcap/monit/job -type f -size +1c -name '*.monitrc' ! -name '*_bosh-*')
+disabled_files=$(find /var/vcap/monit/job -type f -size +1c -name '*.monitrc.disable' ! -name '*_bosh-*')
+
+if [ -z "$enabled_files" ]; then
+echo "enabled monit files not found"
+fi
+
+if [ -n "$disabled_files" ]; then
+echo "disabled monit files found"
+echo "$disabled_files"
+fi
+
+if [ -z "$enabled_files" ] && [ -z "$disabled_files" ]; then
+echo "monit files not found"
+exit_code=1
+fi
+
+/var/vcap/bosh/bin/monit validate
+<% if_p("wait") do |seconds| %>
+sleep <%= seconds %>
+<%
+end %>
+/var/vcap/bosh/bin/monit report down
+exit $exit_code
+<%  end
+end
+%>
+
+<% p('jobs').each do |job| %>
+disabled_file=$(find /var/vcap/monit/job -iname '*<%= "#{job}" %>*.monitrc.disable')
+enabled_file=${disabled_file%.disable}
+
+if [ -f $disabled_file ]; then
+    echo "found disabled file : $disabled_file"
+    if [ -f $enabled_file ]; then
+        echo "found enabled file too : $enabled_file"
+        exit_code=1
+    fi
+fi
+<% end %>
+/var/vcap/bosh/bin/monit validate
+<% if_p("wait") do |seconds| %>
+sleep <%= seconds %>
+<%
+end %>
+/var/vcap/bosh/bin/monit report down
+exit $exit_code

@@ -1,0 +1,17 @@
+---
+name: monit_status
+
+templates:
+  run.sh.erb: bin/run
+
+packages: []
+
+properties:
+  instances:
+    description: A list of instances to check all jobs. It overrides any job checks the same errand would do independently.
+    default: []
+  jobs:
+    description: A list of jobs to check
+    default: []
+  wait:
+    description: Sleep for x seconds to check all services again
