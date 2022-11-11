@@ -9,10 +9,7 @@ mkdir -p $disabled_folder
 enabled_files=$(find /var/vcap/monit/job -type f -size +1c -name '*.monitrc' ! -name '*_bosh-*')
 for monit_file in ${enabled_files} ; do
     for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
-        /var/vcap/bosh/bin/monit unmonitor $p
-    done
-    for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
-        /var/vcap/bosh/bin/monit stop $p
+        /var/vcap/bosh/bin/monit unmonitor $p && /var/vcap/bosh/bin/monit stop $p
     done
     mv $monit_file $disabled_folder
     <%
@@ -22,7 +19,7 @@ for monit_file in ${enabled_files} ; do
     end %>
 done
 /var/vcap/bosh/bin/monit reload
-/var/vcap/bosh/bin/monit validate
+
 exit $?
 <%  end
 end
@@ -35,10 +32,7 @@ disabled_file="$enabled_file.disable"
 
 if [ -f $monit_file ]; then
     for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
-        /var/vcap/bosh/bin/monit unmonitor $p
-    done
-    for p in $(cat $monit_file | grep "check process" | sed 's/check process //g'); do
-        /var/vcap/bosh/bin/monit stop $p
+        /var/vcap/bosh/bin/monit unmonitor $p && /var/vcap/bosh/bin/monit stop $p
     done
     mv -f "$enabled_file" "$disabled_file"
 fi
